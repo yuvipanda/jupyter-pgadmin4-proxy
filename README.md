@@ -1,25 +1,37 @@
-# jupyter-postgres-demo
+# jupyter-pgadmin4-proxy
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/psychemedia/jupyter-postgres-demo/pgadmin)
+**jupyter-pgadmin4-proxy** leverages jupyter-server-proxy to proxy Pgadmin4 applications inside a Jupyter server.
 
-Demo of launching a binderhub notebook server with a free running Postgres server and pgadmin (h/t @manics and [this PR](https://github.com/psychemedia/jupyter-postgres-demo/pull/2)).
+If you have a JupyterHub deployment, jupyter-pgadmin4-proxy can take advantage of JupyterHub's existing authenticator and spawner to launch Pgadmin4 applications in users' Jupyter environments.
 
-pgadmin login:
+## Credit
 
-- email: `jovyan@localhost`
-- password: `secret`
+[@manics](https://github.com/manics) and [@psychemedia](https://github.com/psychemedia) did most of the
+work here.
 
-Current issue w/ pgadmin: [query tool won't load](https://github.com/psychemedia/jupyter-postgres-demo/issues/3).
+## Installation
 
-There is a test db set up for user `testuser` and password `testpass`.
+### Pre-reqs
 
+#### Install pgadmin4-server
+[Download](https://rstudio.com/products/pgadmin4/download-server/) the corresponding package for your platform.
 
+### Install jupyter-pgadmin4-proxy
 
-The `init.db` file is called to set up any required users, databases, etc, and it in turn seeds a test database as defined in `seed_db.sql`.
+Install the library:
+```
+pip install jupyter-pgadmin4-proxy
+```
 
+### Setup default credentials
 
-Example via [@manics on Jupyter dscourse site](https://discourse.jupyter.org/t/running-arbitrary-services-alongside-jupyter-notebooks-in-binderhub/299/10?u=psychemedia) [[gist](https://gist.github.com/manics/e1392b4368cff1b92c362f121215ce84)].
+We use pgadmin4 in server mode, since desktop-mode doesn't allow it to be run under a URL prefix
+(a requirmenet for use with jupyter-server-proxy). This requires a default username and password.
+You *need* to set it up manually in your container image (or other system) before users can
+access pgadmin4.
 
-See the other branches for versions that do, albeit at the expense of using a Dockerfile.
+```bash
+PGADMIN_SETUP_EMAIL=<email> PGADMIN_SETUP_PASSWORD=<password> python3 $(python3 -c 'import site; print(site.getsitepackages()[0])')/pgadmin4/setup.py
+```
 
-
+This will setup the root user name in the session database under `~/.pgadmin4`
